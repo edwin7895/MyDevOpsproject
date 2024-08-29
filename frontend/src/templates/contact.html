@@ -4,5 +4,51 @@
 
 {% block content %}
 <h1>Contact Us</h1>
-<p>This is the Contact page. Here you can add a form or contact details.</p>
+<p>Fill out the form below to send us a message.</p>
+
+<form id="contactForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="message">Message:</label><br>
+    <textarea id="message" name="message" rows="4" required></textarea><br><br>
+
+    <input type="submit" value="Send Message">
+</form>
+
+<p id="responseMessage" style="color: green;"></p>
+
+<script>
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // Evitar el envío del formulario por defecto
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+
+        fetch('http://localhost:8080/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                message: message
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('responseMessage').textContent = data.message;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('responseMessage').textContent = 'There was an error sending your message.';
+        });
+    });
+</script>
+
 {% endblock %}
