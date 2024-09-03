@@ -4,6 +4,7 @@ pipeline {
     environment {
         PYTHON_ENV = "${WORKSPACE}/venv"
         PYTHONPATH = "${WORKSPACE}/frontend/src"
+        DOCKER_IMAGE = "edwin789/frontend-python:latest"  // Cambia esto según tu configuración
     }
 
     stages {
@@ -29,14 +30,25 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 sh '. ${PYTHON_ENV}/bin/activate && export PYTHONPATH=${PYTHONPATH} && python -m xmlrunner discover -s frontend/src/tests -o frontend/src/reports'
-                // Comando de depuración para listar los archivos generados
-                sh 'ls -l frontend/src/reports'
+                sh 'ls -l frontend/src/reports' // Debug para verificar archivos generados
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Construir la imagen Docker
+                    sh 'docker build -t ${DOCKER_IMAGE} frontend/src'
+
+                    // (Opcional) Subir la imagen a un registro Docker
+                    // sh 'docker push ${DOCKER_IMAGE}'
+                }
             }
         }
 
         stage('Post-build') {
             steps {
-                echo 'Build and Test completed'
+                echo 'Build, Test, and Docker Image creation completed'
             }
         }
     }
