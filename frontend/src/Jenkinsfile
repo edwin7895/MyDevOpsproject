@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
+                git branch: 'feature/ci-cd', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
             }
         }
 
@@ -21,20 +21,22 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '. ${PYTHON_ENV}/bin/activate && pip install -r requirements.txt'
+                // Aquí actualizamos la ruta a la ubicación correcta de requirements.txt
+                sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt'
             }
         }
 
         stage('Build') {
             steps {
-                sh '. ${PYTHON_ENV}/bin/activate && python src/main.py'
+                // Si es necesario, ajusta también la ruta al script principal
+                sh '. ${PYTHON_ENV}/bin/activate && python frontend/src/main.py'
             }
         }
 
         stage('Unit Tests') {
             steps {
                 // Ejecuta las pruebas unitarias y genera un archivo de reporte .xml
-                sh '. ${PYTHON_ENV}/bin/activate && python -m xmlrunner discover -s tests -o reports'
+                sh '. ${PYTHON_ENV}/bin/activate && python -m xmlrunner discover -s frontend/src/tests -o reports'
             }
         }
 
@@ -48,7 +50,7 @@ pipeline {
     post {
         always {
             // Publicar los resultados de las pruebas en Jenkins
-            junit 'reports/*.xml'
+            junit 'frontend/src/reports/*.xml'
             // Limpiar el entorno virtual después de completar el pipeline
             sh 'rm -rf ${PYTHON_ENV}'
         }
