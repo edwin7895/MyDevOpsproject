@@ -21,21 +21,12 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                // Aquí actualizamos la ruta a la ubicación correcta de requirements.txt
                 sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                // Si es necesario, ajusta también la ruta al script principal
-                sh '. ${PYTHON_ENV}/bin/activate && python frontend/src/main.py'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                // Ejecuta las pruebas unitarias y genera un archivo de reporte .xml
                 sh '. ${PYTHON_ENV}/bin/activate && python -m xmlrunner discover -s frontend/src/tests -o reports'
             }
         }
@@ -49,9 +40,7 @@ pipeline {
 
     post {
         always {
-            // Publicar los resultados de las pruebas en Jenkins
             junit 'frontend/src/reports/*.xml'
-            // Limpiar el entorno virtual después de completar el pipeline
             sh 'rm -rf ${PYTHON_ENV}'
         }
     }
