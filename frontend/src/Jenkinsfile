@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         PYTHON_ENV = "${WORKSPACE}/venv"
+        PYTHONPATH = "${WORKSPACE}/frontend/src"
     }
 
     stages {
@@ -27,7 +28,7 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                sh '. ${PYTHON_ENV}/bin/activate && python -m xmlrunner discover -s frontend/src/tests -o reports'
+                sh '. ${PYTHON_ENV}/bin/activate && export PYTHONPATH=${PYTHONPATH} && python -m xmlrunner discover -s frontend/src/tests -o reports'
             }
         }
 
