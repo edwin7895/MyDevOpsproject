@@ -29,6 +29,8 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 sh '. ${PYTHON_ENV}/bin/activate && export PYTHONPATH=${PYTHONPATH} && python -m xmlrunner discover -s frontend/src/tests -o frontend/src/reports'
+                // Comando de depuración para listar los archivos generados
+                sh 'ls -l frontend/src/reports'
             }
         }
 
