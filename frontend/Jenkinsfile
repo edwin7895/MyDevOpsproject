@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_ENV = "${WORKSPACE}/venv"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
+            }
+        }
+
+        stage('Set up Python Environment') {
+            steps {
+                sh 'python3 -m venv ${PYTHON_ENV}'
+                sh '. ${PYTHON_ENV}/bin/activate'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '. ${PYTHON_ENV}/bin/activate && pip install -r requirements.txt'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh '. ${PYTHON_ENV}/bin/activate && python src/main.py'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                // Ejecuta las pruebas unitarias y genera un archivo de reporte .xml
+                sh '. ${PYTHON_ENV}/bin/activate && python -m xmlrunner discover -s tests -o reports'
+            }
+        }
+
+        stage('Post-build') {
+            steps {
+                echo 'Build and Test completed'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Publicar los resultados de las pruebas en Jenkins
+            junit 'reports/*.xml'
+            // Limpiar el entorno virtual después de completar el pipeline
+            sh 'rm -rf ${PYTHON_ENV}'
+        }
+    }
+}
