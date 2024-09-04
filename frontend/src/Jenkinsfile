@@ -23,12 +23,12 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                cache(path: 'frontend/src/venv', key: 'pip-cache') {
+                // cache(path: 'frontend/src/venv', key: 'pip-cache') {
                     // Intentar instalar dependencias y mostrar errores si los hay
                     sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt || echo "Dependency installation failed"'
                     // Mostrar la lista de dependencias instaladas
                     sh '. ${PYTHON_ENV}/bin/activate && pip list'
-                }
+                // }
             }
         }
 
