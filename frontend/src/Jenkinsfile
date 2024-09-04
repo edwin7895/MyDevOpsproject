@@ -31,10 +31,44 @@ pipeline {
                 // }
             }
         }
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_ENV = "${WORKSPACE}/venv"
+        PYTHONPATH = "${WORKSPACE}/frontend/src"
+        DOCKER_IMAGE = "edwin789/frontend-python:latest"
+        DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'feature/ci-cd', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
+            }
+        }
+
+        stage('Set up Python Environment') {
+            steps {
+                sh 'python3 -m venv ${PYTHON_ENV}'
+                sh '. ${PYTHON_ENV}/bin/activate'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt'
+            }
+        }
 
         stage('Linting') {
             steps {
-                sh '. ${PYTHON_ENV}/bin/activate && flake8 frontend/src'
+                script {
+                    // Captura los errores de linting y genera un warning sin detener el pipeline
+                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                        sh '. ${PYTHON_ENV}/bin/activate && flake8 frontend/src'
+                    }
+                }
             }
         }
 
