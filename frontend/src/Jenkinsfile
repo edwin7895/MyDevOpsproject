@@ -48,11 +48,12 @@ pipeline {
         // Añadir el análisis de SonarCloud
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarCloud') {  // 'SonarCloud' es el nombre que configuraste en Jenkins
-                    sh 'sonar-scanner'
+                withSonarQubeEnv('SonarCloud') {  
+                    sh '/opt/sonar-scanner/bin/sonar-scanner'
                 }
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
