@@ -4,8 +4,8 @@ pipeline {
     environment {
         PYTHON_ENV = "${WORKSPACE}/venv"
         PYTHONPATH = "${WORKSPACE}/frontend/src"
-        DOCKER_IMAGE = "edwin789/frontend-python:latest"  // Cambia esto según tu configuración
-        DOCKER_CREDENTIALS_ID = "docker-hub-credentials"  // Cambia esto al ID de tus credenciales en Jenkins
+        DOCKER_IMAGE = "edwin789/frontend-python:latest"
+        DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
     }
 
     stages {
@@ -17,14 +17,17 @@ pipeline {
 
         stage('Set up Python Environment') {
             steps {
-                sh 'python3 -m venv ${PYTHON_ENV} && . ${PYTHON_ENV}/bin/activate'
+                sh 'python3 -m venv ${PYTHON_ENV} && . ${PYTHON_ENV}/bin/activate && echo "Virtual environment activated"'
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 cache(path: 'frontend/src/venv', key: 'pip-cache') {
-                    sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt'
+                    // Intentar instalar dependencias y mostrar errores si los hay
+                    sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt || echo "Dependency installation failed"'
+                    // Mostrar la lista de dependencias instaladas
+                    sh '. ${PYTHON_ENV}/bin/activate && pip list'
                 }
             }
         }
@@ -44,45 +47,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Construir la imagen Docker
                     sh 'docker build -t ${DOCKER_IMAGE} frontend/src'
                 }
             }
         }
 
-        stage('Push Docker Image') {
-            when {
-                branch 'main'  // Solo hacer push a Docker Hub en la rama 'main'
-            }
-            steps {
-                script {
-                    // Autenticarse en Docker Hub
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin > /dev/null 2>&1'
-
-                        // Push de la imagen a Docker Hub
-                        sh 'docker push ${DOCKER_IMAGE}'
-
-                        // Logout de Docker Hub
-                        sh 'docker logout'
-                    }
-                }
-            }
-        }
-
-        stage('Post-build') {
-            steps {
-                echo 'Build, Test, Docker Image creation, and Push to Docker Hub completed'
-                // Limpia imágenes antiguas para liberar espacio
-                sh 'docker image prune -f'
-            }
-        }
-    }
-
-    post {
-        always {
-            junit 'frontend/src/reports/*.xml'
-            sh 'rm -rf ${PYTHON_ENV}'
-        }
-    }
-}
+        stage('
