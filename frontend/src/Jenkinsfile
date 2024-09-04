@@ -52,4 +52,33 @@ pipeline {
             }
         }
 
-        stage('
+        stage('Push Docker Image') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin > /dev/null 2>&1'
+                        sh 'docker push ${DOCKER_IMAGE}'
+                        sh 'docker logout'
+                    }
+                }
+            }
+        }
+
+        stage('Post-build') {
+            steps {
+                echo 'Build, Test, Docker Image creation, and Push to Docker Hub completed'
+                sh 'docker image prune -f'
+            }
+        }
+    }
+
+    post {
+        always {
+            junit 'frontend/src/reports/*.xml'
+            sh 'rm -rf ${PYTHON_ENV}'
+        }
+    }
+}
