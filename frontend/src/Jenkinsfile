@@ -17,21 +17,27 @@ pipeline {
 
         stage('Set up Python Environment') {
             steps {
-                sh 'python3 -m venv ${PYTHON_ENV}'
-                sh '. ${PYTHON_ENV}/bin/activate'
+                sh 'python3 -m venv ${PYTHON_ENV} && . ${PYTHON_ENV}/bin/activate'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt'
+                cache(path: 'frontend/src/venv', key: 'pip-cache') {
+                    sh '. ${PYTHON_ENV}/bin/activate && pip install -r frontend/src/requirements.txt'
+                }
+            }
+        }
+
+        stage('Linting') {
+            steps {
+                sh '. ${PYTHON_ENV}/bin/activate && flake8 frontend/src'
             }
         }
 
         stage('Unit Tests') {
             steps {
                 sh '. ${PYTHON_ENV}/bin/activate && export PYTHONPATH=${PYTHONPATH} && python -m xmlrunner discover -s frontend/src/tests -o frontend/src/reports'
-                sh 'ls -l frontend/src/reports' // Debug para verificar archivos generados
             }
         }
 
@@ -45,11 +51,14 @@ pipeline {
         }
 
         stage('Push Docker Image') {
+            when {
+                branch 'main'  // Solo hacer push a Docker Hub en la rama 'main'
+            }
             steps {
                 script {
                     // Autenticarse en Docker Hub
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin > /dev/null 2>&1'
 
                         // Push de la imagen a Docker Hub
                         sh 'docker push ${DOCKER_IMAGE}'
@@ -64,6 +73,8 @@ pipeline {
         stage('Post-build') {
             steps {
                 echo 'Build, Test, Docker Image creation, and Push to Docker Hub completed'
+                // Limpia imágenes antiguas para liberar espacio
+                sh 'docker image prune -f'
             }
         }
     }
