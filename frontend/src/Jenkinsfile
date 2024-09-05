@@ -41,9 +41,12 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                sh '. ${PYTHON_ENV}/bin/activate && export PYTHONPATH=${PYTHONPATH} && python -m xmlrunner discover -s frontend/src/tests -o frontend/src/reports'
+                sh '. ${PYTHON_ENV}/bin/activate && export PYTHONPATH=${PYTHONPATH} && coverage run -m unittest discover -s frontend/src/tests'
+                sh 'coverage report -m'
+                sh 'coverage xml -o frontend/src/reports/coverage.xml'
             }
         }
+
 
         // Añadir el análisis de SonarCloud
         stage('SonarQube Analysis') {
