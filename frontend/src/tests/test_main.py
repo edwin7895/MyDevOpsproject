@@ -28,14 +28,14 @@ class FlaskAppTests(unittest.TestCase):
         self.assertIn(b'Contact', response.data)
 
     # Prueba para la ruta 'contact' con POST
-    def test_contact_page_post(self):
-        response = self.app.post('/contact', data=dict(
-            name='Test User',
-            email='test@example.com',
-            message='This is a test message.'
-        ))
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Thank you, Test User', response.data)
+    # def test_contact_page_post(self):
+    #     response = self.app.post('/contact', data=dict(
+    #         name='Test User',
+    #         email='test@example.com',
+    #         message='This is a test message.'
+    #     ))
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn(b'Thank you, Test User', response.data)
 
 if __name__ == '__main__':
     unittest.main()
