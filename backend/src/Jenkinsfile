@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/edwin7895/MyGoBackendApp.git'
+                git branch: 'main', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
             }
         }
 
