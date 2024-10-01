@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
+                git branch: '', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
             }
         }
 
@@ -19,13 +19,12 @@ pipeline {
                 sh 'mkdir -p ${GO_ENV}/bin && export GOPATH=${GO_ENV}'
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
-                dir('backend/src') { // Asegúrate de estar en el directorio correcto
-                    sh 'go mod tidy'
-                }
+                sh 'go mod tidy'
             }
+        }
 
         stage('Linting') {
             steps {
