@@ -19,12 +19,13 @@ pipeline {
                 sh 'mkdir -p ${GO_ENV}/bin && export GOPATH=${GO_ENV}'
             }
         }
-
+        
         stage('Install Dependencies') {
             steps {
-                sh 'go mod tidy'
+                dir('backend/src') { // Asegúrate de estar en el directorio correcto
+                    sh 'go mod tidy'
+                }
             }
-        }
 
         stage('Linting') {
             steps {
