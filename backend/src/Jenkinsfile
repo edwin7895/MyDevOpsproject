@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: '', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
+                git branch: 'feature/ci-cd', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
             }
         }
 
@@ -22,9 +22,11 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'go mod tidy'
+                dir('backend/src') { // Asegúrate de estar en el directorio correcto
+                    sh 'go mod tidy'
+                }
             }
-        }
+        }            
 
         stage('Linting') {
             steps {
