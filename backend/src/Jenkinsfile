@@ -16,10 +16,9 @@ pipeline {
 
         stage('Set up Go Environment') {
             steps {
-                sh 'mkdir -p ${GO_ENV}/bin && export GOPATH=${GO_ENV} && export PATH=$PATH:/usr/local/go/bin'
+                sh 'mkdir -p ${GO_ENV}/bin && export GOPATH=${GO_ENV}'
             }
         }
-
 
         stage('Install Dependencies') {
             steps {
