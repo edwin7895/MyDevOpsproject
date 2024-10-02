@@ -44,11 +44,27 @@ func TestContactHandler(t *testing.T) {
         t.Errorf("handler devolvió status incorrecto: obtuvo %v esperaba %v", status, http.StatusOK)
     }
 
-    expected := `{"message":"Thank you, John Doe. Your message has been received."}`
-    if rr.Body.String() != expected {
-        t.Errorf("handler devolvió respuesta inesperada: obtuvo %v esperaba %v", rr.Body.String(), expected)
+    // Convertir la respuesta esperada y la obtenida en JSON
+    var expected map[string]string
+    var actual map[string]string
+
+    expectedStr := `{"message":"Thank you, John Doe. Your message has been received."}`
+    err = json.Unmarshal([]byte(expectedStr), &expected)
+    if err != nil {
+        t.Fatalf("No se pudo parsear la respuesta esperada: %v", err)
+    }
+
+    err = json.Unmarshal(rr.Body.Bytes(), &actual)
+    if err != nil {
+        t.Fatalf("No se pudo parsear la respuesta obtenida: %v", err)
+    }
+
+    // Comparar los valores de los mensajes
+    if actual["message"] != expected["message"] {
+        t.Errorf("handler devolvió respuesta inesperada: obtuvo %v esperaba %v", actual["message"], expected["message"])
     }
 }
+
 
 func TestNotFoundHandler(t *testing.T) {
     req, err := http.NewRequest("GET", "/not-found", nil)
