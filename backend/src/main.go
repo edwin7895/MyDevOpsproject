@@ -23,33 +23,36 @@ func enableCors(w http.ResponseWriter) {
 }
 
 func main() {
-    // Crear un router
+    // Crear un nuevo router
     mux := http.NewServeMux()
 
-    // Registrar rutas
+    // Registrar las rutas existentes
     mux.HandleFunc("/", HomeHandler)
     mux.HandleFunc("/api/contact", contactHandler)
 
-    // Registrar un manejador de rutas no encontradas (404)
-    mux.HandleFunc("/404", notFoundHandler)
-
-    // Asignar el manejador 404 en el router
-    mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        if r.URL.Path != "/" && r.URL.Path != "/api/contact" {
-            notFoundHandler(w, r)
-            return
-        }
+    // Envolver el router para manejar rutas no encontradas
+    wrappedMux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Intentar servir la ruta solicitada
         mux.ServeHTTP(w, r)
-    }))
+        // Si el código de estado es diferente de 200, y no se ha escrito nada en el ResponseWriter
+        if w.Header().Get("Content-Type") == "" {
+            // Ruta no encontrada, llamar al notFoundHandler
+            notFoundHandler(w, r)
+        }
+    })
 
     fmt.Println("Server is running on port 8080...")
-    if err := http.ListenAndServe(":8080", mux); err != nil {
+    if err := http.ListenAndServe(":8080", wrappedMux); err != nil {
         log.Fatal(err)
     }
 }
 
 // Manejador de la ruta principal "/"
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path != "/" {
+        notFoundHandler(w, r)
+        return
+    }
     enableCors(w)
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
