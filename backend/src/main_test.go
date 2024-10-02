@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TesthomeHandler(t *testing.T) {
+func TestHomeHandler(t *testing.T) {
 	// Prueba para el código 200 en la ruta principal.
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -14,7 +14,7 @@ func TesthomeHandler(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(homeHandler)
+	handler := http.HandlerFunc(HomeHandler)
 	handler.ServeHTTP(rr, req)
 
 	// Verifica que la respuesta sea 200 OK.
@@ -37,7 +37,7 @@ func TestNotFoundHandler(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(homeHandler)
+	handler := http.HandlerFunc(HomeHandler)
 	handler.ServeHTTP(rr, req)
 
 	// Verifica que el código de respuesta sea 404.

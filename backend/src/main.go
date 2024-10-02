@@ -23,7 +23,7 @@ func enableCors(w http.ResponseWriter) {
 }
 
 func main() {
-    http.HandleFunc("/", homeHandler)
+    http.HandleFunc("/", HomeHandler)
     http.HandleFunc("/api/contact", contactHandler)
 
     fmt.Println("Server is running on port 8080...")
@@ -32,7 +32,7 @@ func main() {
     }
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
     enableCors(w)
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
