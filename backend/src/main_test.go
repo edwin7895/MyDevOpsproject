@@ -23,7 +23,7 @@ func TestHomeHandler(t *testing.T) {
 	}
 
 	// Verifica que el contenido sea correcto.
-	expected := `{"message": "Bienvenido a mi API en Go!"}`
+	expected := `{"message": "Welcome to the Backend API!"}`
 	if rr.Body.String() != expected {
 		t.Errorf("handler devolvió body incorrecto: obtuvo %v esperaba %v", rr.Body.String(), expected)
 	}
