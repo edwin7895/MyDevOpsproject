@@ -65,7 +65,8 @@ func TestNotFoundHandler(t *testing.T) {
         t.Errorf("handler devolvió status incorrecto: obtuvo %v esperaba %v", status, http.StatusNotFound)
     }
 
-    expected := "Not found\n"
+    // Cambiar la respuesta esperada según el mensaje real devuelto por el handler
+    expected := `{"error": "404 - Resource not found"}`
     if rr.Body.String() != expected {
         t.Errorf("handler devolvió respuesta inesperada: obtuvo %v esperaba %v", rr.Body.String(), expected)
     }
