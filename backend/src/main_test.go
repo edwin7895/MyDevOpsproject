@@ -2,6 +2,7 @@ package main
 
 import (
     "bytes"
+    "encoding/json" // Importar el paquete json	
     "net/http"
     "net/http/httptest"
     "testing"
