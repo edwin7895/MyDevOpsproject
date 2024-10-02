@@ -51,6 +51,16 @@ pipeline {
             }
         }
 
+        stage('SonarCloud Analysis') {
+            steps {
+                withSonarQubeEnv('SonarCloud') {         
+                    sh "export PATH=\$PATH:/opt/sonar-scanner/bin && sonar-scanner -Dsonar.branch.name=${env.BRANCH_NAME} -Dproject.settings=sonar-project-backend.properties"
+
+
+                }
+            }
+        }        
+
         stage('Build Docker Image') {
             steps {
                 script {
