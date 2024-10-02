@@ -23,15 +23,32 @@ func enableCors(w http.ResponseWriter) {
 }
 
 func main() {
-    http.HandleFunc("/", HomeHandler)
-    http.HandleFunc("/api/contact", contactHandler)
+    // Crear un router
+    mux := http.NewServeMux()
+
+    // Registrar rutas
+    mux.HandleFunc("/", HomeHandler)
+    mux.HandleFunc("/api/contact", contactHandler)
+
+    // Registrar un manejador de rutas no encontradas (404)
+    mux.HandleFunc("/404", notFoundHandler)
+
+    // Asignar el manejador 404 en el router
+    mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        if r.URL.Path != "/" && r.URL.Path != "/api/contact" {
+            notFoundHandler(w, r)
+            return
+        }
+        mux.ServeHTTP(w, r)
+    }))
 
     fmt.Println("Server is running on port 8080...")
-    if err := http.ListenAndServe(":8080", nil); err != nil {
+    if err := http.ListenAndServe(":8080", mux); err != nil {
         log.Fatal(err)
     }
 }
 
+// Manejador de la ruta principal "/"
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
     enableCors(w)
     w.Header().Set("Content-Type", "application/json")
@@ -39,6 +56,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
     w.Write([]byte(`{"message": "Welcome to the Backend API!"}`))
 }
 
+// Manejador para la ruta "/api/contact"
 func contactHandler(w http.ResponseWriter, r *http.Request) {
     enableCors(w)
 
@@ -77,3 +95,6 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(response)
 }
+
+// Manejador para rutas no encontradas
+func notFoundHandler(w http.ResponseWriter, r *h
