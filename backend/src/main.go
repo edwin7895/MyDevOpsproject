@@ -97,4 +97,9 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Manejador para rutas no encontradas
-func notFoundHandler(w http.ResponseWriter, r *h
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+    enableCors(w)
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusNotFound)
+    w.Write([]byte(`{"error": "404 - Resource not found"}`))
+}
