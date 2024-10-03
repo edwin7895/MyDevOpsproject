@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'feature/ci-cd', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
+                git branch: 'feature-ci-cid-backend', url: 'https://github.com/edwin7895/MyDevOpsproject.git'
             }
         }
 
