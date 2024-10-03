@@ -23,22 +23,43 @@ func enableCors(w http.ResponseWriter) {
 }
 
 func main() {
-    http.HandleFunc("/", homeHandler)
-    http.HandleFunc("/api/contact", contactHandler)
+    // Crear un nuevo router
+    mux := http.NewServeMux()
+
+    // Registrar las rutas existentes
+    mux.HandleFunc("/", HomeHandler)
+    mux.HandleFunc("/api/contact", contactHandler)
+
+    // Envolver el router para manejar rutas no encontradas
+    wrappedMux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Intentar servir la ruta solicitada
+        mux.ServeHTTP(w, r)
+        // Si el código de estado es diferente de 200, y no se ha escrito nada en el ResponseWriter
+        if w.Header().Get("Content-Type") == "" {
+            // Ruta no encontrada, llamar al notFoundHandler
+            notFoundHandler(w, r)
+        }
+    })
 
     fmt.Println("Server is running on port 8080...")
-    if err := http.ListenAndServe(":8080", nil); err != nil {
+    if err := http.ListenAndServe(":8080", wrappedMux); err != nil {
         log.Fatal(err)
     }
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+// Manejador de la ruta principal "/"
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path != "/" {
+        notFoundHandler(w, r)
+        return
+    }
     enableCors(w)
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
     w.Write([]byte(`{"message": "Welcome to the Backend API!"}`))
 }
 
+// Manejador para la ruta "/api/contact"
 func contactHandler(w http.ResponseWriter, r *http.Request) {
     enableCors(w)
 
@@ -76,4 +97,12 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(response)
+}
+
+// Manejador para rutas no encontradas
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+    enableCors(w)
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusNotFound)
+    w.Write([]byte(`{"error": "404 - Resource not found"}`))
 }
