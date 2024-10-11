@@ -29,7 +29,7 @@
         const email = document.getElementById('email').value;
         const message = document.getElementById('message').value;
 
-        fetch('http://localhost:8080/api/contact', {
+        fetch('http://backend-app-service:8080/api/contact', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
